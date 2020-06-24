@@ -1,5 +1,5 @@
 <?php
-namespace Mvc4us\Cache;
+namespace Mvc4us\Cache\Exception;
 
 /**
  * Exception interface for invalid cache arguments.

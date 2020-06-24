@@ -19,7 +19,7 @@ interface CacheInterface
      *
      * @return bool True on success and false on failure.
      *
-     * @throws \Mvc4us\Cache\InvalidArgumentException MUST be thrown if the $key string is not a legal value.
+     * @throws \Mvc4us\Cache\Exception\InvalidArgumentException MUST be thrown if the $key string is not a legal value.
      */
     public function get($key, &$var): bool;
 
@@ -37,7 +37,7 @@ interface CacheInterface
      *
      * @return bool True on success and false on failure.
      *
-     * @throws \Mvc4us\Cache\InvalidArgumentException MUST be thrown if the $key string is not a legal value.
+     * @throws \Mvc4us\Cache\Exception\InvalidArgumentException MUST be thrown if the $key string is not a legal value.
      */
     public function set($key, $value, $ttl = null): bool;
 
@@ -49,60 +49,19 @@ interface CacheInterface
      *
      * @return bool True if the item was successfully removed. False if there was an error.
      *
-     * @throws \Mvc4us\Cache\InvalidArgumentException MUST be thrown if the $key string is not a legal value.
+     * @throws \Mvc4us\Cache\Exception\InvalidArgumentException MUST be thrown if the $key string is not a legal value.
      */
     public function delete($key): bool;
-
-    /**
-     * Fetches a value from a hash table from the cache.
-     *
-     * @param string $key
-     *            The unique key of this array in the cache.
-     * @param string $memberKey
-     *            The unique key of this item in the array.
-     * @param mixed $var
-     *            Variable to be set with returned value. Also acts as a default value if the key does not exist.
-     *
-     * @return bool True on success and false on failure.
-     *
-     * @throws \Mvc4us\Cache\InvalidArgumentException MUST be thrown if the $key and/or $memberKey string is not a legal value.
-     */
-    public function getItem($key, $memberKey, &$var): bool;
-
-    /**
-     * Persists data into a hash table in the cache, uniquely referenced by a key with an optional expiration TTL time.
-     *
-     * @param string $key
-     *            The key of the item to store.
-     * @param mixed $value
-     *            The value of the item to store, must be serializable.
-     * @param null|int|\DateInterval $ttl
-     *            Optional. The TTL value of this item. If no value is sent and
-     *            the driver supports TTL then the library may set a default value
-     *            for it or let the driver take care of that.
-     *
-     * @return bool True on success and false on failure.
-     *
-     * @throws \Mvc4us\Cache\InvalidArgumentException MUST be thrown if the $key and/or $memberKey string is not a legal value.
-     */
-    public function setItem($key, $memberKey, $value, $expiration = null): bool;
-
-    /**
-     * Delete an item from a hashtable from the cache by its unique key.
-     *
-     * @param string $key
-     *            The unique cache key of the item to delete.
-     *
-     * @return bool True if the item was successfully removed. False if there was an error.
-     *
-     * @throws \Mvc4us\Cache\InvalidArgumentException MUST be thrown if the $key and/or $memberKey string is not a legal value.
-     */
-    public function deleteItem($key, $memberKey): bool;
 
     /**
      * Wipes clean the entire cache's keys.
      *
      * @return bool True on success and false on failure.
+     *         <<<<<<< Updated upstream
+     *
+     * @throws \Mvc4us\Cache\Exception\InvalidArgumentException MUST be thrown if the $key and/or $memberKey string is not a legal value.
+     *         =======
+     *         >>>>>>> Stashed changes
      */
     public function clear(): bool;
 
@@ -118,9 +77,50 @@ interface CacheInterface
      *            The cache item key.
      *
      * @return bool
-     *
-     * @throws \Mvc4us\Cache\InvalidArgumentException MUST be thrown if the $key string is not a legal value.
+     * @throws \Mvc4us\Cache\Exception\InvalidArgumentException MUST be thrown if the $key string is not a legal value.
      */
     public function has($key): bool;
+
+    /**
+     * Determines when an item is not found when searched from cache.
+     *
+     *
+     * @param
+     *
+     * @return bool
+     * @throws \Mvc4us\Cache\Exception\InvalidArgumentException MUST be thrown if the $key and/or $memberKey string is not a legal value.
+     */
+    public function notFound(): bool;
+
+    /**
+     * Determines when an item is found when searched from cache.
+     *
+     *
+     * @param
+     *
+     * @return bool
+     *
+     */
+    public function found(): bool;
+
+    /**
+     * Determines which cache an item comes from.
+     *
+     *
+     * @param
+     *
+     * @return string
+     * @throws \Mvc4us\Cache\Exception\InvalidArgumentException MUST be thrown if the $key string is not a legal value.
+     */
+    public function getPrefix(): string;
+
+    /**
+     *
+     * @param string $prefix
+     *
+     *
+     * @throws \Mvc4us\Cache\Exception\InvalidArgumentException MUST be thrown if the $key string is not a legal value.
+     */
+    public function setPrefix($prefix);
 }
 
