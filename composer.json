@@ -1,0 +1,34 @@
+{
+	"name" : "mvc4us/mvc4us",
+	"type" : "library",
+	"autoload" : {
+		"psr-4" : {
+			"Mvc4us\\" : "src/"
+		}
+	},
+	"autoload-dev" : {
+		"psr-4" : {
+			"Mvc4us\\Tests\\" : "tests"
+		}
+	},
+	"require" : {
+		"php" : ">=7.4",
+		"symfony/config" : "^5.0.0",
+		"symfony/dependency-injection" : "^5.0.0",
+		"symfony/http-foundation" : "^5.0.0",
+		"symfony/routing" : "^5.0.0",
+		"yosymfony/toml" : "^1.0.0",
+		"psr/log" : "^1.1.0"
+	},
+	"require-dev" : {
+		"phpunit/phpunit" : "~9.2"
+	},
+	"suggest" : {
+		"ext-redis" : "Redis cache adapter depends on this extension",
+		"twig/twig" : "Twig, the flexible, fast, and secure template language for PHP",
+		"monolog/monolog" : "Sends your logs to files, sockets, inboxes, databases and various web services",
+		"danielstjules/stringy" : "A string manipulation library with multibyte support"
+	},
+	"minimum-stability" : "stable",
+	"description" : "A juicy framework highly depends on symfony components."
+}

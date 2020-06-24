@@ -1,0 +1,14 @@
+# IDE related ignores
+.buildpath
+.settings/
+.project
+*.launch
+.idea
+
+# Enviroment related ignores
+.DS_Store
+*~
+error.log
+
+# Project related ignores
+/vendor/
