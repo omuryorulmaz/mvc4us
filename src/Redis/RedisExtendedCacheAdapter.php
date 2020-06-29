@@ -17,7 +17,7 @@ class RedisExtendedCacheAdapter extends RedisCacheAdapter implements ExtendedCac
      */
     public function getItem($key, $memberKey, &$var): bool
     {
-        if (! $this->existsItem($key, $memberKey)) {
+        if (! $this->hasItem($key, $memberKey)) {
             $this->lastFound = false;
             return $this->lastFound;
         }
@@ -73,10 +73,10 @@ class RedisExtendedCacheAdapter extends RedisCacheAdapter implements ExtendedCac
      *
      * @see \Mvc4us\Cache\ExtendedCacheInterface::touch()
      */
-    public function touch($key, &$var, $expiration = - 1)
+    public function touch($key, &$var, $ttl = null): bool
     {
         if ($this->get($key, $var)) {
-            if ($this->setExpire($key, $expiration)) {
+            if ($this->setExpire($key, $ttl)) {
                 $this->lastFound = true;
                 return $this->lastFound;
             }
@@ -89,10 +89,10 @@ class RedisExtendedCacheAdapter extends RedisCacheAdapter implements ExtendedCac
      *
      * @see \Mvc4us\Cache\ExtendedCacheInterface::touchItem()
      */
-    public function touchItem($key, $memberKey, &$var, $expiration = - 1)
+    public function touchItem($key, $memberKey, &$var, $ttl = null): bool
     {
         if ($this->getItem($key, $memberKey, $var)) {
-            if ($this->setExpire($key, $expiration)) {
+            if ($this->setExpire($key, $ttl)) {
                 $this->lastFound = true;
                 return $this->lastFound;
             }
@@ -101,7 +101,12 @@ class RedisExtendedCacheAdapter extends RedisCacheAdapter implements ExtendedCac
         return $this->lastFound;
     }
 
-    public function getTimeLeft($key)
+    public function hasItem($key, $memberKey): bool
+    {
+        return $this->redis->hExists($this->key($key), $memberKey);
+    }
+
+    public function getTimeLeft($key): int
     {
         $ttl = $this->redis->ttl($this->key($key));
         if ($ttl < 0) {
@@ -110,7 +115,7 @@ class RedisExtendedCacheAdapter extends RedisCacheAdapter implements ExtendedCac
         return $ttl;
     }
 
-    public function setExpire($key, $expiration = - 1)
+    public function setExpire($key, $expiration = null): bool
     {
         return $this->redis->expire($this->key($key), $this->checkExpiration($expiration));
     }

@@ -93,6 +93,8 @@ interface ExtendedCacheInterface extends CacheInterface
      */
     public function touch($key, &$var, $ttl = null): bool;
 
+    public function hasItem($key, $memberKey): bool;
+
     public function getTimeLeft($key): int;
 
     public function setExpire($key, $expiration = null): bool;

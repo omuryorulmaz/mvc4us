@@ -57,11 +57,8 @@ interface CacheInterface
      * Wipes clean the entire cache's keys.
      *
      * @return bool True on success and false on failure.
-     *         <<<<<<< Updated upstream
      *
      * @throws \Mvc4us\Cache\Exception\InvalidArgumentException MUST be thrown if the $key and/or $memberKey string is not a legal value.
-     *         =======
-     *         >>>>>>> Stashed changes
      */
     public function clear(): bool;
 
@@ -112,7 +109,7 @@ interface CacheInterface
      * @return string
      * @throws \Mvc4us\Cache\Exception\InvalidArgumentException MUST be thrown if the $key string is not a legal value.
      */
-    public function getPrefix(): string;
+    public function getPrefix(): ?string;
 
     /**
      *

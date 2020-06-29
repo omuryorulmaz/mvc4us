@@ -15,15 +15,15 @@ class RedisCacheAdapter implements CacheInterface
      *
      * @var \Redis
      */
-    private $redis;
+    protected $redis;
 
-    private $errorCode;
+    protected $errorCode;
 
-    private $errorString;
+    protected $errorString;
 
-    private $prefix;
+    protected $prefix = '';
 
-    private $lastFound;
+    protected $lastFound = false;
 
     public function __construct(string $host, int $port = 6379, ?string $auth = null, int $db = 0)
     {
@@ -52,7 +52,7 @@ class RedisCacheAdapter implements CacheInterface
      */
     public function get($key, &$var): bool
     {
-        if (! $this->exists($key)) {
+        if (! $this->has($key)) {
             $this->lastFound = false;
             return $this->lastFound;
         }
@@ -91,8 +91,14 @@ class RedisCacheAdapter implements CacheInterface
      */
     public function set($key, $value, $ttl = null): bool
     {
-        $this->redis->set($key, $value);
-        $this->redis->expire($key, $ttl);
+        if (! $this->redis->set($this->key($key), $value)) {
+            return false;
+        }
+
+        if (! $this->redis->expire($this->key($key), $this->checkExpiration($ttl))) {
+            $this->delete($key);
+            return false;
+        }
         return true;
     }
 
@@ -111,7 +117,7 @@ class RedisCacheAdapter implements CacheInterface
      */
     public function clear(): bool
     {
-        $keys = $this->redis->getKeys($this->cachePrefix . '*');
+        $keys = $this->redis->getKeys($this->getPrefix() . '*');
         $flush = $this->redis->delete($keys);
         return count($keys) === $flush;
     }
@@ -125,16 +131,11 @@ class RedisCacheAdapter implements CacheInterface
         return $this->redis->exists($this->key($key));
     }
 
-    public function existsItem($key, $memberKey)
-    {
-        return $this->redis->hExists($this->key($key), $memberKey);
-    }
-
     /**
      *
      * @see \Mvc4us\Cache\CacheInterface::getPrefix()
      */
-    public function getPrefix(): string
+    public function getPrefix(): ?string
     {
         return $this->prefix;
     }
@@ -144,6 +145,7 @@ class RedisCacheAdapter implements CacheInterface
      * @see \Mvc4us\Cache\CacheInterface::setPrefix()
      */
     public function setPrefix($prefix)
+
     {
         $this->prefix = $prefix;
     }
@@ -166,7 +168,7 @@ class RedisCacheAdapter implements CacheInterface
         return ! $this->lastFound;
     }
 
-    private function sameObjectType($o1, $o2)
+    protected function sameObjectType($o1, $o2)
     {
         $c1 = get_class($o1);
         if ($c1 === get_class($o2)) {
@@ -175,12 +177,12 @@ class RedisCacheAdapter implements CacheInterface
         return false;
     }
 
-    private function key($key)
+    protected function key($key)
     {
-        return $this->getCachePrefix() . $key;
+        return $this->getPrefix() . $key;
     }
 
-    private function checkExpiration($expiration)
+    protected function checkExpiration($expiration)
     {
         if ($expiration < 0)
             return $this->expiration;
