@@ -95,6 +95,11 @@ abstract class AbstractController implements ControllerInterface
      * @param string $controllerName
      * @param Request $request
      * @param Response $response
+     *
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     * @throws \Mvc4us\Controller\Exception\CircularForwardException
+     *
      */
     protected function forward(string $controllerName, Request $request, Response $response)
     {
@@ -105,9 +110,10 @@ abstract class AbstractController implements ControllerInterface
 
         /**
          *
-         * @var \Mvc4us\Controller\ControllerInterface $controller
+         * @var \Mvc4us\Controller\AbstractController $controller
          */
         $controller = $this->container->get($controllerName);
+        $controller->setContainer($this->container);
         $controller->handle($request, $response);
         unset(self::$callStack[static::class]);
     }

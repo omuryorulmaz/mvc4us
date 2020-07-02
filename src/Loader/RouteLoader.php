@@ -2,8 +2,7 @@
 namespace Mvc4us\Loader;
 
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\Config\Exception\FileLocatorFileNotFoundException;
-use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\Loader\PhpFileLoader;
 
 /**
@@ -19,16 +18,13 @@ final class RouteLoader
     private function __construct()
     {}
 
-    public static function load($projectDir): RouteCollection
+    public static function load($projectDir): Router
     {
         $routeLocator = new FileLocator($projectDir . '/config/routes');
         $routeLoader = new PhpFileLoader($routeLocator);
-        try {
-            $routes = $routeLoader->load('routes.php');
-        } catch (FileLocatorFileNotFoundException $e) {
-            $routes = new RouteCollection();
-        }
-        return $routes;
+
+        $router = new Router($routeLoader, 'routes.php');
+        return $router;
     }
 }
 

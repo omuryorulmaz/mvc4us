@@ -13,8 +13,6 @@ use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Matcher\RequestMatcherInterface;
-use Symfony\Component\Routing\Matcher\UrlMatcher;
-use ReflectionObject;
 
 /**
  *
@@ -36,12 +34,6 @@ class Mvc4us
 
     /**
      *
-     * @var \Symfony\Component\Routing\RouteCollection
-     */
-    private $routes;
-
-    /**
-     *
      * @var string
      */
     private $projectDir;
@@ -58,7 +50,8 @@ class Mvc4us
 
         $this->container = ServiceLoader::load($this->projectDir);
 
-        $this->routes = RouteLoader::load($this->projectDir);
+        $router = RouteLoader::load($this->projectDir);
+        $this->container->set('router', $router);
     }
 
     public function runCmd($controllerName, ?Request $request = null, $echo = true): ?Response
@@ -67,8 +60,7 @@ class Mvc4us
         $request->setMethod('CLI');
         $response = $this->run($controllerName, $request, self::RUN_CMD);
         if ($echo) {
-            if ($response->has)
-                echo $response->getContent();
+            echo $response->getContent() . PHP_EOL;
         }
         return $response;
     }
@@ -95,10 +87,19 @@ class Mvc4us
             $response = new Response();
             $response->prepare($request);
 
-            if ($run === self::RUN_WEB) {
+            if ($run === self::RUN_WEB && $controllerName === null) {
+
+                /**
+                 *
+                 * @var \Symfony\Component\Routing\Router $router
+                 */
+                $router = $this->container->get('router');
+
                 $context = new RequestContext();
                 $context->fromRequest($request);
-                $matcher = new UrlMatcher($this->routes, $context);
+                $router->setContext($context);
+                $matcher = $router->getMatcher();
+
                 if ($matcher instanceof RequestMatcherInterface) {
                     $parameters = $matcher->matchRequest($request);
                 } else {
@@ -106,9 +107,6 @@ class Mvc4us
                 }
 
                 $request->attributes->add($parameters);
-                // TODO: check if below two lines are necessary?
-                unset($parameters['_route'], $parameters['_controller']);
-                $request->attributes->set('_route_params', $parameters);
 
                 $controllerName = $request->attributes->get('_controller');
             }
@@ -132,7 +130,7 @@ class Mvc4us
                     $message .= sprintf(' (Referer: "%s")', $referer);
                 }
 
-                $reflectionObject = new ReflectionObject($e);
+                $reflectionObject = new \ReflectionObject($e);
                 $reflectionObjectProp = $reflectionObject->getProperty('message');
                 $reflectionObjectProp->setAccessible(true);
                 $reflectionObjectProp->setValue($e, $message);
@@ -146,7 +144,7 @@ class Mvc4us
                 $request->getPathInfo(),
                 implode(', ', $e->getAllowedMethods()));
 
-            $reflectionObject = new ReflectionObject($e);
+            $reflectionObject = new \ReflectionObject($e);
             $reflectionObjectProp = $reflectionObject->getProperty('message');
             $reflectionObjectProp->setAccessible(true);
             $reflectionObjectProp->setValue($e, $message);
@@ -166,7 +164,7 @@ class Mvc4us
 
         if ($e !== null) {
             $response->setException($e);
-            // $response->setContent($message);
+            // TODO logger service
             error_log($e);
         }
         return $response;

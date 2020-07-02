@@ -58,7 +58,6 @@ final class Config
         }
 
         $envSelector = $environment;
-        $environment = null;
         if (isset($envList[$envSelector])) {
             $environment = $envList[$envSelector];
         } else {

@@ -28,7 +28,7 @@ class Response extends \Symfony\Component\HttpFoundation\Response
 
     public function setContent($content, $nl2br = false)
     {
-        return parent::setContent($content = $nl2br ? nl2br($content) : $content);
+        return parent::setContent(($nl2br ? nl2br($content) : $content));
     }
 
     /**
