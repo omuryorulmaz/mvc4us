@@ -26,10 +26,10 @@ final class Config
         if ($environment === null || empty($environment)) {
             if (self::$environment !== null) {
                 $environment = self::$environment;
-            } elseif (isset($_ENV['MVC4P_ENV'])) {
-                $environment = $_ENV['MVC4P_ENV'];
-            } elseif (isset($_SERVER['MVC4P_ENV'])) {
-                $environment = $_SERVER['MVC4P_ENV'];
+            } elseif (isset($_ENV['MVC4US_ENV'])) {
+                $environment = $_ENV['MVC4US_ENV'];
+            } elseif (isset($_SERVER['MVC4US_ENV'])) {
+                $environment = $_SERVER['MVC4US_ENV'];
             } elseif (isset($_SERVER['HTTP_HOST']) && isset($_SERVER['SERVER_PORT'])) {
                 $environment = $_SERVER['HTTP_HOST'] . $_SERVER['SERVER_PORT'];
             }

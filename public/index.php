@@ -10,5 +10,5 @@ define('APP_DIR', dirname(__DIR__));
 
 require APP_DIR . '/vendor/autoload.php';
 
-$mvc4p = new Mvc4us(APP_DIR);
-$mvc4p->runWeb();
+$mvc4us = new Mvc4us(APP_DIR);
+$mvc4us->runWeb();
