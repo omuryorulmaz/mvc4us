@@ -3,7 +3,6 @@ namespace Mvc4us\Controller;
 
 use Mvc4us\Controller\Exception\CircularForwardException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -35,29 +34,6 @@ abstract class AbstractController implements ControllerInterface
         $this->container = $container;
 
         return $previous;
-    }
-
-    /**
-     * Gets a container parameter by its name.
-     *
-     * @deprecated
-     *
-     * @return mixed
-     */
-    protected function getParameter(string $name)
-    {
-        // if (! $this->container->has('parameter_bag')) {
-        throw new ServiceNotFoundException(
-            'parameter_bag',
-            null,
-            null,
-            [],
-            sprintf(
-                'The "%s::getParameter()" method is missing a parameter bag to work properly. Did you forget to register your controller as a service subscriber? This can be fixed either by using autoconfiguration or by manually wiring a "parameter_bag" in the service locator passed to the controller.',
-                \get_class($this)));
-        // }
-
-        // return $this->container->get('parameter_bag')->get($name);
     }
 
     /**
@@ -211,7 +187,7 @@ abstract class AbstractController implements ControllerInterface
      * Returns a rendered view.
      * TODO
      */
-    protected function renderView(string $view, array $parameters = array()): string
+    protected function renderView(string $view, array $parameters = []): string
     {
         if ($this->container->has('templating')) {
             return $this->container->get('templating')->render($view, $parameters);
