@@ -2,13 +2,13 @@
 namespace Mvc4us;
 
 use Mvc4us\Config\Config;
-use Mvc4us\Http\Request;
-use Mvc4us\Http\Response;
-use Mvc4us\Loader\RouteLoader;
-use Mvc4us\Loader\ServiceLoader;
+use Mvc4us\DependencyInjection\Loader\ServiceLoader;
+use Mvc4us\Routing\Loader\RouteLoader;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
@@ -84,9 +84,6 @@ class Mvc4us
                 $this->reload();
             }
 
-            $response = new Response();
-            $response->prepare($request);
-
             if ($run === self::RUN_WEB && $controllerName === null) {
 
                 /**
@@ -119,10 +116,11 @@ class Mvc4us
              * @var \Mvc4us\Controller\ControllerInterface $controller
              */
             $controller = $this->container->get($controllerName);
-            $controller->handle($request, $response);
+            $controller->setContainer($this->container);
+            $response = $controller->handle($request);
         } catch (ResourceNotFoundException $e) {
 
-            $response->setStatusCode(Response::HTTP_NOT_FOUND);
+            $response = new Response('', Response::HTTP_NOT_FOUND);
             if ($run === self::RUN_WEB) {
                 $message = sprintf('No routes found for "%s %s"', $request->getMethod(), $request->getPathInfo());
 
@@ -137,7 +135,7 @@ class Mvc4us
             }
         } catch (MethodNotAllowedException $e) {
 
-            $response->setStatusCode(Response::HTTP_METHOD_NOT_ALLOWED);
+            $response = new Response('', Response::HTTP_METHOD_NOT_ALLOWED);
             $message = sprintf(
                 'No routes found for "%s %s". Method Not Allowed (Allow: %s)',
                 $request->getMethod(),
@@ -150,23 +148,30 @@ class Mvc4us
             $reflectionObjectProp->setValue($e, $message);
         } catch (ServiceNotFoundException $e) {
 
-            $response->setStatusCode(Response::HTTP_SERVICE_UNAVAILABLE);
+            $response = new Response('', Response::HTTP_SERVICE_UNAVAILABLE);
         } catch (InvalidArgumentException $e) {
 
-            $response->setStatusCode(Response::HTTP_SERVICE_UNAVAILABLE);
+            $response = new Response('', Response::HTTP_SERVICE_UNAVAILABLE);
         } catch (ServiceCircularReferenceException $e) {
 
-            $response->setStatusCode(Response::HTTP_SERVICE_UNAVAILABLE);
+            $response = new Response('', Response::HTTP_SERVICE_UNAVAILABLE);
+        } catch (\TypeError $e) {
+
+            $response = new Response('', Response::HTTP_SERVICE_UNAVAILABLE);
         } catch (\Exception $e) {
 
-            $response->setStatusCode(Response::HTTP_SERVICE_UNAVAILABLE);
+            $response = new Response('', Response::HTTP_SERVICE_UNAVAILABLE);
+        } catch (\Error $e) {
+
+            $response = new Response('', Response::HTTP_SERVICE_UNAVAILABLE);
         }
 
         if ($e !== null) {
-            $response->setException($e);
+            $request->attributes->set('exception', $e);
             // TODO logger service
             error_log($e);
         }
+        $response->prepare($request);
         return $response;
     }
 }

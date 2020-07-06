@@ -2,13 +2,13 @@
 namespace Mvc4us\Controller;
 
 use Mvc4us\Controller\Exception\CircularForwardException;
-use Mvc4us\Http\Request;
-use Mvc4us\Http\Response;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -93,15 +93,15 @@ abstract class AbstractController implements ControllerInterface
      * Forwards the request to another controller.
      *
      * @param string $controllerName
-     * @param Request $request
-     * @param Response $response
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
      *
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
      * @throws \Mvc4us\Controller\Exception\CircularForwardException
-     *
      */
-    protected function forward(string $controllerName, Request $request, Response $response)
+    protected function forward(string $controllerName, Request $request): Response
     {
         self::$callStack[static::class] = true;
         if (array_key_exists($controllerName, self::$callStack)) {
@@ -114,8 +114,9 @@ abstract class AbstractController implements ControllerInterface
          */
         $controller = $this->container->get($controllerName);
         $controller->setContainer($this->container);
-        $controller->handle($request, $response);
+        $response = $controller->handle($request);
         unset(self::$callStack[static::class]);
+        return $response;
     }
 
     /**
@@ -130,7 +131,10 @@ abstract class AbstractController implements ControllerInterface
 
     /**
      * Returns a RedirectResponse to the given URL.
-     * TODO
+     *
+     * @param string $url
+     * @param int $status
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     protected function redirect(string $url, int $status = 302): RedirectResponse
     {
@@ -139,7 +143,11 @@ abstract class AbstractController implements ControllerInterface
 
     /**
      * Returns a RedirectResponse to the given route with the given parameters.
-     * TODO
+     *
+     * @param string $route
+     * @param array $parameters
+     * @param int $status
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     protected function redirectToRoute(string $route, array $parameters = array(), int $status = 302): RedirectResponse
     {

@@ -1,5 +1,5 @@
 <?php
-namespace Mvc4us\Loader;
+namespace Mvc4us\DependencyInjection\Loader;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Exception\FileLocatorFileNotFoundException;

@@ -1,8 +1,8 @@
 <?php
 namespace Mvc4us\Controller;
 
-use Mvc4us\Http\Request;
-use Mvc4us\Http\Response;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 interface ControllerInterface
 {
@@ -10,8 +10,8 @@ interface ControllerInterface
     /**
      * Handle request.
      *
-     * @param \Mvc4us\Http\Request $request
-     * @param \Mvc4us\Http\Response $response
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    function handle(Request $request, Response $response);
+    function handle(Request $request): Response;
 }

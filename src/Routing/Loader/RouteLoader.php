@@ -1,6 +1,7 @@
 <?php
-namespace Mvc4us\Loader;
+namespace Mvc4us\Routing\Loader;
 
+use Mvc4us\Routing\NonRedirectingCompiledUrlMatcher;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\Loader\PhpFileLoader;
@@ -23,7 +24,14 @@ final class RouteLoader
         $routeLocator = new FileLocator($projectDir . '/config/routes');
         $routeLoader = new PhpFileLoader($routeLocator);
 
-        $router = new Router($routeLoader, 'routes.php');
+        // TODO: Make redirection configurable
+        $router = new Router(
+            $routeLoader,
+            'routes.php',
+            [
+                'matcher_class' => NonRedirectingCompiledUrlMatcher::class
+                // 'matcher_class' => RedirectingCompiledUrlMatcher::class
+            ]);
         return $router;
     }
 }
