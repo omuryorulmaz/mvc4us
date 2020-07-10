@@ -3,7 +3,6 @@ namespace Mvc4us;
 
 use Mvc4us\Config\Config;
 use Mvc4us\DependencyInjection\Loader\ServiceLoader;
-use Mvc4us\Routing\Loader\RouteLoader;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -49,9 +48,6 @@ class Mvc4us
         Config::load($this->projectDir, $environment);
 
         $this->container = ServiceLoader::load($this->projectDir);
-
-        $router = RouteLoader::load($this->projectDir);
-        $this->container->set('router', $router);
     }
 
     public function runCmd($controllerName, ?Request $request = null, $echo = true): ?Response
@@ -171,6 +167,7 @@ class Mvc4us
             // TODO logger service
             error_log($e);
         }
+        $response = $response !== null ? $response : new Response();
         $response->prepare($request);
         return $response;
     }

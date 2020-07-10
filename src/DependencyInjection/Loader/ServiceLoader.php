@@ -1,6 +1,8 @@
 <?php
 namespace Mvc4us\DependencyInjection\Loader;
 
+use Mvc4us\Routing\Loader\RouteLoader;
+use Mvc4us\Twig\TwigLoader;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Exception\FileLocatorFileNotFoundException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -36,6 +38,14 @@ final class ServiceLoader
         }
 
         $container->compile();
+
+        $router = RouteLoader::load($projectDir);
+        $container->set('router', $router);
+
+        if (class_exists('Twig\\Environment')) {
+            $twig = TwigLoader::load($projectDir);
+            $container->set('twig', $twig);
+        }
 
         return $container;
     }

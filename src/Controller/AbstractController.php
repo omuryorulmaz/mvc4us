@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -121,9 +120,14 @@ abstract class AbstractController implements ControllerInterface
      * Returns a RedirectResponse to the given route with the given parameters.
      *
      * @param string $route
+     *            The name of the route
      * @param array $parameters
+     *            An array of parameters
      * @param int $status
+     *            The status code to use for the Response
+     *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     *
      */
     protected function redirectToRoute(string $route, array $parameters = array(), int $status = 302): RedirectResponse
     {
@@ -132,9 +136,20 @@ abstract class AbstractController implements ControllerInterface
 
     /**
      * Returns a JsonResponse that uses the serializer component if enabled, or json_encode.
-     * TODO
+     *
+     * @param mixed $data
+     *            The response data
+     * @param int $status
+     *            The status code to use for the Response
+     * @param array $headers
+     *            Array of extra headers to add
+     * @param array $context
+     *            Context to pass to serializer when using serializer component
+     *
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     *
      */
-    protected function json($data, int $status = 200, array $headers = array(), array $context = array()): JsonResponse
+    protected function json($data, int $status = 200, array $headers = [], array $context = []): JsonResponse
     {
         if ($this->container->has('serializer')) {
             $json = $this->container->get('serializer')->serialize(
@@ -152,10 +167,16 @@ abstract class AbstractController implements ControllerInterface
 
     /**
      * Returns a BinaryFileResponse object with original or customized file name and disposition header.
-     * TODO
      *
      * @param \SplFileInfo|string $file
      *            File object or path to file to be sent as response
+     * @param string|null $fileName
+     *            File name to be sent to response or null (will use original file name)
+     * @param string $disposition
+     *            Disposition of response ("attachment" is default, other type is "inline")
+     *
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     *
      */
     protected function file($file, string $fileName = null, string $disposition = ResponseHeaderBag::DISPOSITION_ATTACHMENT): BinaryFileResponse
     {
@@ -169,9 +190,14 @@ abstract class AbstractController implements ControllerInterface
 
     /**
      * Adds a flash message to the current session for type.
-     * TODO
+     *
+     * @param string $type
+     *            The type
+     * @param string $message
+     *            The message
      *
      * @throws \LogicException
+     *
      */
     protected function addFlash(string $type, string $message)
     {
@@ -185,7 +211,14 @@ abstract class AbstractController implements ControllerInterface
 
     /**
      * Returns a rendered view.
-     * TODO
+     *
+     * @param string $view
+     *            The view name
+     * @param array $parameters
+     *            An array of parameters to pass to the view
+     *
+     * @return string The rendered view
+     *
      */
     protected function renderView(string $view, array $parameters = []): string
     {
@@ -195,7 +228,7 @@ abstract class AbstractController implements ControllerInterface
 
         if (! $this->container->has('twig')) {
             throw new \LogicException(
-                'You can not use the "renderView" method if the Templating Component or the Twig Bundle are not available. Try running "composer require symfony/twig-bundle".');
+                'You can not use the "renderView" method if the Templating Component or the Twig Component are not available. Try running "composer require symfony/twig-bundle".');
         }
 
         return $this->container->get('twig')->render($view, $parameters);
@@ -203,7 +236,16 @@ abstract class AbstractController implements ControllerInterface
 
     /**
      * Renders a view.
-     * TODO
+     *
+     * @param string $view
+     *            The view name
+     * @param array $parameters
+     *            An array of parameters to pass to the view
+     * @param Response $response
+     *            A response instance
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     *
      */
     protected function render(string $view, array $parameters = [], Response $response = null): Response
     {
@@ -213,7 +255,7 @@ abstract class AbstractController implements ControllerInterface
             $content = $this->container->get('twig')->render($view, $parameters);
         } else {
             throw new \LogicException(
-                'You can not use the "render" method if the Templating Component or the Twig Bundle are not available. Try running "composer require twig/twig".');
+                'You can not use the "render" method if the Templating Component or the Twig Component are not available. Try running "composer require twig/twig".');
         }
 
         if (null === $response) {
@@ -225,38 +267,38 @@ abstract class AbstractController implements ControllerInterface
         return $response;
     }
 
-    /**
-     * Streams a view.
-     *
-     * @
-     */
-    protected function stream(string $view, array $parameters = array(), StreamedResponse $response = null): StreamedResponse
-    {
-        if ($this->container->has('templating')) {
-            $templating = $this->container->get('templating');
+    // /**
+    // * Streams a view.
+    // *
+    // * @
+    // */
+    // protected function stream(string $view, array $parameters = array(), StreamedResponse $response = null): StreamedResponse
+    // {
+    // if ($this->container->has('templating')) {
+    // $templating = $this->container->get('templating');
 
-            $callback = function () use ($templating, $view, $parameters) {
-                $templating->stream($view, $parameters);
-            };
-        } elseif ($this->container->has('twig')) {
-            $twig = $this->container->get('twig');
+    // $callback = function () use ($templating, $view, $parameters) {
+    // $templating->stream($view, $parameters);
+    // };
+    // } elseif ($this->container->has('twig')) {
+    // $twig = $this->container->get('twig');
 
-            $callback = function () use ($twig, $view, $parameters) {
-                $twig->display($view, $parameters);
-            };
-        } else {
-            throw new \LogicException(
-                'You can not use the "stream" method if the Templating Component or the Twig Bundle are not available. Try running "composer require symfony/twig-bundle".');
-        }
+    // $callback = function () use ($twig, $view, $parameters) {
+    // $twig->display($view, $parameters);
+    // };
+    // } else {
+    // throw new \LogicException(
+    // 'You can not use the "stream" method if the Templating Component or the Twig Bundle are not available. Try running "composer require symfony/twig-bundle".');
+    // }
 
-        if (null === $response) {
-            return new StreamedResponse($callback);
-        }
+    // if (null === $response) {
+    // return new StreamedResponse($callback);
+    // }
 
-        $response->setCallback($callback);
+    // $response->setCallback($callback);
 
-        return $response;
-    }
+    // return $response;
+    // }
 
     // /**
     // * Returns a NotFoundHttpException.
