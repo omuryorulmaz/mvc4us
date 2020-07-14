@@ -15,7 +15,7 @@ final class TwigLoader
         $loader = new FilesystemLoader($projectDir . '/templates');
         $twig = new Environment($loader, [
             'cache' => $projectDir . '/var/cache/twig',
-            'auto_reload' => true
+            'auto_reload' => true // TODO
         ]);
 
         return $twig;

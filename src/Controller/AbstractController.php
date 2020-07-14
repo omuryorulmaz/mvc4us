@@ -228,7 +228,7 @@ abstract class AbstractController implements ControllerInterface
 
         if (! $this->container->has('twig')) {
             throw new \LogicException(
-                'You can not use the "renderView" method if the Templating Component or the Twig Component are not available. Try running "composer require symfony/twig-bundle".');
+                'You can not use the "renderView" method if the Templating Component or the Twig Component are not available. Try running "composer require twig/twig".');
         }
 
         return $this->container->get('twig')->render($view, $parameters);
