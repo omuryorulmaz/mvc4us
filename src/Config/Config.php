@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Mvc4us\Config;
 
 use Mvc4us\Utils\ArrayUtils;
@@ -7,11 +10,11 @@ use Yosymfony\Toml\Toml;
 final class Config
 {
 
-    private static $environment;
+    private static ?string $environment = null;
 
-    private static $config = [
+    private static array $config = [
         'app' => [
-            'debug' => true
+            'debug' => false
         ]
     ];
 
@@ -19,11 +22,12 @@ final class Config
      * This class should not be instantiated.
      */
     private function __construct()
-    {}
+    {
+    }
 
     public static function load($projectDir, $environment = null)
     {
-        if ($environment === null || empty($environment)) {
+        if (empty($environment)) {
             if (self::$environment !== null) {
                 $environment = self::$environment;
             } elseif (isset($_ENV['MVC4US_ENV'])) {
@@ -33,7 +37,7 @@ final class Config
             } elseif (isset($_SERVER['HTTP_HOST']) && isset($_SERVER['SERVER_PORT'])) {
                 $environment = $_SERVER['HTTP_HOST'] . $_SERVER['SERVER_PORT'];
             }
-            if ($environment === null || empty($environment)) {
+            if (empty($environment)) {
                 // throw new InvalidConfigException('Unable to determine environment');
                 return;
             }
@@ -48,11 +52,11 @@ final class Config
         }
 
         $envFile = $configPath . '/env.toml';
-        if (! is_file($envFile)) {
+        if (!is_file($envFile)) {
             return;
         }
         $envList = Toml::parseFile($envFile);
-        if ($envList === null || empty($envList)) {
+        if (empty($envList)) {
             // throw new InvalidConfigException('No environment is defined in "env.toml".');
             return;
         }
@@ -68,24 +72,20 @@ final class Config
                 }
             }
         }
-        if ($environment === null || empty($environment)) {
-            // throw new InvalidConfigException(sprintf('No environment is defined for selector "%s".', $envSelector));
+        if (empty($environment)) {
             return;
         }
         self::$environment = $environment;
 
         if (is_dir($configPath . DIRECTORY_SEPARATOR . $environment)) {
             self::setConfigByPath($configPath, $environment);
-            return;
         }
-
-        // throw new InvalidConfigException(sprintf('Environment "%s" is not defined.', $environment));
     }
 
     /**
      * Get environment name
      *
-     * @return string
+     * @return string|null
      */
     public static function environment(): ?string
     {
@@ -95,7 +95,7 @@ final class Config
     /**
      * Check if in debug mode
      *
-     * @return boolean
+     * @return bool
      */
     public static function isDebug(): bool
     {
@@ -109,7 +109,7 @@ final class Config
      *            config section name
      * @return array
      */
-    public static function getAll($section): array
+    public static function getAll(string $section): array
     {
         if (isset(self::$config[$section])) {
             return self::$config[$section];
@@ -127,7 +127,7 @@ final class Config
      *            config option in section
      * @return mixed|null
      */
-    public static function get($section, $option)
+    public static function get(string $section, string $option): mixed
     {
         $config = self::getAll($section);
         if (isset($config[$option])) {

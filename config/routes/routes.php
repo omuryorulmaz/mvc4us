@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * Routing configuration is achieved by Symfony's routing component.
  *

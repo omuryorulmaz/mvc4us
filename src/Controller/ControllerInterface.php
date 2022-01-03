@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Mvc4us\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
@@ -11,7 +14,7 @@ interface ControllerInterface
      * Handle request.
      *
      * @param \Symfony\Component\HttpFoundation\Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \Symfony\Component\HttpFoundation\Response|null
      */
     function handle(Request $request): ?Response;
 }

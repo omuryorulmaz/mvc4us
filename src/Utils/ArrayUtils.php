@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Mvc4us\Utils;
 
 /**
@@ -24,7 +27,7 @@ final class ArrayUtils
      * @author Gabriel Sobrinho <gabriel (dot) sobrinho (at) gmail (dot) com>
      * @link https://www.php.net/manual/en/function.array-merge-recursive.php#92195
      */
-    public static function mergeRecursive(array $array1, array $array2)
+    public static function mergeRecursive(array $array1, array $array2):array
     {
         $merged = $array1;
 

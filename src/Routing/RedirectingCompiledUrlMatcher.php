@@ -1,6 +1,10 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Mvc4us\Routing;
 
+use JetBrains\PhpStorm\ArrayShape;
 use Symfony\Component\Routing\Matcher\CompiledUrlMatcher;
 use Symfony\Component\Routing\Matcher\RedirectableUrlMatcherInterface;
 

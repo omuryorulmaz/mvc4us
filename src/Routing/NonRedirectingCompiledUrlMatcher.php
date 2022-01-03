@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Mvc4us\Routing;
 
 use Symfony\Component\Routing\Matcher\CompiledUrlMatcher;

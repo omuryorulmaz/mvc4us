@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Mvc4us\DependencyInjection\Loader;
 
 use Mvc4us\Routing\Loader\RouteLoader;

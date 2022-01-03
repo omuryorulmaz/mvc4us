@@ -1,8 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Mvc4us;
 
 use Mvc4us\Config\Config;
 use Mvc4us\DependencyInjection\Loader\ServiceLoader;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -14,28 +18,18 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Matcher\RequestMatcherInterface;
 
 /**
- *
  * @author erdem
- *
  */
 class Mvc4us
 {
 
-    const RUN_CMD = 1;
+    private const RUN_CMD = 1;
 
-    const RUN_WEB = 2;
+    private const RUN_WEB = 2;
 
-    /**
-     *
-     * @var \Symfony\Component\DependencyInjection\ContainerInterface
-     */
-    private $container;
+    private ?ContainerInterface $container = null;
 
-    /**
-     *
-     * @var string
-     */
-    private $projectDir;
+    private string $projectDir;
 
     public function __construct($projectDir, $environment = null)
     {
@@ -50,7 +44,7 @@ class Mvc4us
         $this->container = ServiceLoader::load($this->projectDir);
     }
 
-    public function runCmd($controllerName, ?Request $request = null, $echo = true): ?Response
+    public function runCmd($controllerName, ?Request $request = null, $echo = false): ?string
     {
         $request = $request ?? new Request($_SERVER['argv']);
         $request->setMethod('CLI');
@@ -58,7 +52,7 @@ class Mvc4us
         if ($echo) {
             echo $response->getContent() . PHP_EOL;
         }
-        return $response;
+        return $response->getContent();
     }
 
     public function runWeb(?Request $request = null): ?Response
@@ -81,9 +75,7 @@ class Mvc4us
             }
 
             if ($run === self::RUN_WEB && $controllerName === null) {
-
                 /**
-                 *
                  * @var \Symfony\Component\Routing\Router $router
                  */
                 $router = $this->container->get('router');
@@ -108,14 +100,12 @@ class Mvc4us
             }
 
             /**
-             *
-             * @var \Mvc4us\Controller\ControllerInterface $controller
+             * @var \Mvc4us\Controller\AbstractController $controller
              */
             $controller = $this->container->get($controllerName);
             $controller->setContainer($this->container);
             $response = $controller->handle($request);
         } catch (ResourceNotFoundException $e) {
-
             $response = new Response('', Response::HTTP_NOT_FOUND);
             if ($run === self::RUN_WEB) {
                 $message = sprintf('No routes found for "%s %s"', $request->getMethod(), $request->getPathInfo());
@@ -130,42 +120,39 @@ class Mvc4us
                 $reflectionObjectProp->setValue($e, $message);
             }
         } catch (MethodNotAllowedException $e) {
-
             $response = new Response('', Response::HTTP_METHOD_NOT_ALLOWED);
             $message = sprintf(
                 'No routes found for "%s %s". Method Not Allowed (Allow: %s)',
                 $request->getMethod(),
                 $request->getPathInfo(),
-                implode(', ', $e->getAllowedMethods()));
+                implode(', ', $e->getAllowedMethods())
+            );
 
             $reflectionObject = new \ReflectionObject($e);
             $reflectionObjectProp = $reflectionObject->getProperty('message');
             $reflectionObjectProp->setAccessible(true);
             $reflectionObjectProp->setValue($e, $message);
         } catch (ServiceNotFoundException $e) {
-
-            $response = new Response('', Response::HTTP_SERVICE_UNAVAILABLE);
+            $response = new Response('', Response::HTTP_NOT_FOUND);
         } catch (InvalidArgumentException $e) {
-
             $response = new Response('', Response::HTTP_SERVICE_UNAVAILABLE);
         } catch (ServiceCircularReferenceException $e) {
-
             $response = new Response('', Response::HTTP_SERVICE_UNAVAILABLE);
         } catch (\TypeError $e) {
-
             $response = new Response('', Response::HTTP_SERVICE_UNAVAILABLE);
         } catch (\Exception $e) {
-
             $response = new Response('', Response::HTTP_SERVICE_UNAVAILABLE);
         } catch (\Error $e) {
-
             $response = new Response('', Response::HTTP_SERVICE_UNAVAILABLE);
         }
 
         if ($e !== null) {
             $request->attributes->set('exception', $e);
-            // TODO logger service
-            error_log($e);
+            if ($this->container->has('logger')) {
+                // TODO logger service
+            } else {
+                error_log(sprintf("%s\n  thrown in %s on line %s", $e, $e->getFile(), $e->getLine()));
+            }
         }
         $response = $response !== null ? $response : new Response();
         $response->prepare($request);

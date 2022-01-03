@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Mvc4us\Controller;
 
 use Mvc4us\Controller\Exception\CircularForwardException;
@@ -19,13 +22,9 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 abstract class AbstractController implements ControllerInterface
 {
 
-    /**
-     *
-     * @var \Symfony\Component\DependencyInjection\ContainerInterface
-     */
-    private $container;
+    private ?ContainerInterface $container = null;
 
-    private static $callStack = [];
+    private static array $callStack = [];
 
     public function setContainer(ContainerInterface $container): ?ContainerInterface
     {
@@ -48,7 +47,7 @@ abstract class AbstractController implements ControllerInterface
      *
      * @return object The service
      */
-    protected function get(string $id)
+    protected function get(string $id): object
     {
         return $this->container->get($id);
     }
@@ -59,8 +58,11 @@ abstract class AbstractController implements ControllerInterface
      *
      * @see \Symfony\Component\Routing\Generator\UrlGeneratorInterface
      */
-    protected function generateUrl(string $route, array $parameters = array(), int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH): string
-    {
+    protected function generateUrl(
+        string $route,
+        array $parameters = [],
+        int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH
+    ): string {
         return $this->container->get('router')->generate($route, $parameters, $referenceType);
     }
 
@@ -101,7 +103,7 @@ abstract class AbstractController implements ControllerInterface
      */
     protected function isForwarded()
     {
-        return ! empty(self::$callStack);
+        return !empty(self::$callStack);
     }
 
     /**
@@ -157,7 +159,8 @@ abstract class AbstractController implements ControllerInterface
                 'json',
                 array_merge(array(
                     'json_encode_options' => JsonResponse::DEFAULT_ENCODING_OPTIONS
-                ), $context));
+                ), $context)
+            );
 
             return new JsonResponse($json, $status, $headers, true);
         }
@@ -178,12 +181,16 @@ abstract class AbstractController implements ControllerInterface
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      *
      */
-    protected function file($file, string $fileName = null, string $disposition = ResponseHeaderBag::DISPOSITION_ATTACHMENT): BinaryFileResponse
-    {
+    protected function file(
+        $file,
+        string $fileName = null,
+        string $disposition = ResponseHeaderBag::DISPOSITION_ATTACHMENT
+    ): BinaryFileResponse {
         $response = new BinaryFileResponse($file);
         $response->setContentDisposition(
             $disposition,
-            null === $fileName ? $response->getFile()->getFilename() : $fileName);
+            null === $fileName ? $response->getFile()->getFilename() : $fileName
+        );
 
         return $response;
     }
@@ -201,9 +208,10 @@ abstract class AbstractController implements ControllerInterface
      */
     protected function addFlash(string $type, string $message)
     {
-        if (! $this->container->has('session')) {
+        if (!$this->container->has('session')) {
             throw new \LogicException(
-                'You can not use the addFlash method if sessions are disabled. Enable them in "config/packages/framework.yaml".');
+                'You can not use the addFlash method if sessions are disabled. Enable them in "config/packages/framework.yaml".'
+            );
         }
 
         $this->container->get('session')->getFlashBag()->add($type, $message);
@@ -226,9 +234,10 @@ abstract class AbstractController implements ControllerInterface
             return $this->container->get('templating')->render($view, $parameters);
         }
 
-        if (! $this->container->has('twig')) {
+        if (!$this->container->has('twig')) {
             throw new \LogicException(
-                'You can not use the "renderView" method if the Templating Component or the Twig Component are not available. Try running "composer require twig/twig".');
+                'You can not use the "renderView" method if the Templating Component or the Twig Component are not available. Try running "composer require twig/twig".'
+            );
         }
 
         return $this->container->get('twig')->render($view, $parameters);
@@ -255,7 +264,8 @@ abstract class AbstractController implements ControllerInterface
             $content = $this->container->get('twig')->render($view, $parameters);
         } else {
             throw new \LogicException(
-                'You can not use the "render" method if the Templating Component or the Twig Component are not available. Try running "composer require twig/twig".');
+                'You can not use the "render" method if the Templating Component or the Twig Component are not available. Try running "composer require twig/twig".'
+            );
         }
 
         if (null === $response) {

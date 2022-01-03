@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * Services configuration is achieved by Symfony's dependency injection component.
  * This is a sample file which consists of common options which may be widely need.
@@ -24,7 +27,7 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
     $services->load('App\\', '../../src/*');
 
     /*
-     * Controller Registration. Those ones have to be public
+     * Controller Registration. Those have to be public
      */
     $services->load('App\\Controller\\', '../../src/Controller/*')->public();
 };
