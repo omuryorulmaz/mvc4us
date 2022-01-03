@@ -1,39 +1,54 @@
 {
-	"name": "mvc4us/mvc4us",
-	"type": "library",
-	"autoload": {
-		"psr-4": {
-			"Mvc4us\\": "src/"
-		}
-	},
-	"autoload-dev": {
-		"psr-4": {
-			"Mvc4us\\Tests\\": "tests/"
-		}
-	},
-	"require": {
-		"php": ">=8.0",
-		"psr/log": "^3.0.0",
-		"symfony/config": "^6.0.0",
-		"symfony/dependency-injection": "^6.0.0",
-		"symfony/http-foundation": "^6.0.0",
-		"symfony/mime": "^6.0.0",
-		"symfony/routing": "^6.0.0",
-		"yosymfony/toml": "^1.0.0"
-	},
-	"require-dev": {
-		"phpunit/phpunit": "^9.5",
-		"twig/twig": "^3.0.0"
-	},
-	"bin": [
-		"bin/mvc4us.php"
-	],
-	"suggest": {
-		"twig/twig": "Twig, the flexible, fast, and secure template language for PHP",
-		"monolog/monolog": "Sends your logs to files, sockets, inboxes, databases and various web services",
-		"danielstjules/stringy": "A string manipulation library with multibyte support",
-		"mvc4us/cache": "Alternate cache implementation to PSR-6 and PSR-16"
-	},
-	"minimum-stability": "stable",
-	"description": "A juicy framework highly depends on symfony components."
+  "name": "mvc4us/mvc4us",
+  "type": "library",
+  "description": "A juicy PHP framework highly depends on symfony components.",
+  "keywords": [
+    "framework"
+  ],
+  "homepage": "https://mvc4.us",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Erdem Uncuoğlu",
+      "email": "erdem@mvc4.us"
+    },
+    {
+      "name": "Mvc4us Community",
+      "homepage": "https://mvc4.us/contributors"
+    }
+  ],
+  "require": {
+    "php": ">=8.0",
+    "psr/log": "^3.0.0",
+    "symfony/config": "^6.0.0",
+    "symfony/dependency-injection": "^6.0.0",
+    "symfony/http-foundation": "^6.0.0",
+    "symfony/mime": "^6.0.0",
+    "symfony/routing": "^6.0.0",
+    "yosymfony/toml": "^1.0.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5",
+    "twig/twig": "^3.0.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Mvc4us\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Mvc4us\\Tests\\": "tests/"
+    }
+  },
+  "bin": [
+    "bin/mvc4us.php"
+  ],
+  "suggest": {
+    "twig/twig": "Twig, the flexible, fast, and secure template language for PHP",
+    "monolog/monolog": "Sends your logs to files, sockets, inboxes, databases and various web services",
+    "danielstjules/stringy": "A string manipulation library with multibyte support",
+    "mvc4us/cache": "Alternate cache implementation to PSR-6 and PSR-16"
+  },
+  "minimum-stability": "dev"
 }
